@@ -1,26 +1,19 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        long r = 1;
-        long M = 1234567891;
-        long H;
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int L = Integer.parseInt(br.readLine());
+		String S = br.readLine();
+		BigInteger result = new BigInteger("0");
+		for(int i = 0; i < L; i++) {
+			result = result.add(BigInteger.valueOf(S.charAt(i) - 96).multiply(BigInteger.valueOf(31).pow(i)));
+		}
+		System.out.println(result.remainder(BigInteger.valueOf(1234567891)));
+	}
 
-        int N = in.nextInt();
-        in.nextLine();
-        String s = in.nextLine();
-
-        long sum = 0;
-
-        for(int i = 0; i < N; i++){
-            sum += r * ((long)s.charAt(i) - 96);
-            r = (r * 31) % M;
-        }
-
-        H = sum;
-
-        System.out.println(H);
-        in.close();
-    }
 }
