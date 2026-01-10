@@ -8,6 +8,7 @@ public class Main {
         int testCases = in.nextInt();
         in.nextLine();
         dp[1] = dp[2] = dp[3] = 1L;
+        dp[4] = dp[5] = 2L;
 
         while (testCases-- > 0) {
             int N = in.nextInt();
@@ -20,7 +21,7 @@ public class Main {
 
     private static long find(int N) {
         if (dp[N] == null) {
-            dp[N] = find(N - 2) + find(N - 3);
+            dp[N] = find(N - 1) + find(N - 5);
         }
         return dp[N];
     }
