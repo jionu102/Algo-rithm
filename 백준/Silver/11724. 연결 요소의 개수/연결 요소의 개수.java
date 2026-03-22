@@ -33,7 +33,7 @@ public class Main {
 
         for (int i = 1; i < N + 1; i++) {
             if (!visited[i]) {
-                bfs(graph, i);
+                dfs(graph, i);
                 count++;
             }
         }
@@ -42,21 +42,13 @@ public class Main {
         in.close();
     }
 
-    public static void bfs(List<Integer>[] graph, int start) {
-        Queue<Integer> queue = new LinkedList<>();
-
-        visited[start] = true;
-        queue.offer(start);
-
-        while(!queue.isEmpty()) {
-            int node = queue.poll();
-
-            for (int neighbor : graph[node]) {
+    public static void dfs(List<Integer>[] graph, int start) {
+            visited[start] = true;
+            
+            for (int neighbor : graph[start]) {
                 if (!visited[neighbor]) {
-                    visited[neighbor] = true;
-                    queue.offer(neighbor);
+                    dfs(graph, neighbor);
                 }
             }
-        }
     }
 }
