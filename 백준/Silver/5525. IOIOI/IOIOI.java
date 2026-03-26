@@ -18,16 +18,18 @@ public class Main {
         }
 
         int count = 0;
+        int oi = 0;
 
-        int index = str.indexOf('I');;
-
-        while (index <= str.length() - patternStr.length()) {
-            int findIndex = str.indexOf(patternStr.toString(), index);
-            if (findIndex != -1) {
-                index = findIndex + 1;
-                count++;
-            } else {
-                break;
+        for (int i = 0; i < M; i++) {
+            if (str.charAt(i) == 'I') {
+                if (i + 2 < str.length() && str.charAt(i + 1) == 'O' && str.charAt(i + 2) == 'I') {
+                    oi++;
+                } else {
+                    oi = 0;
+                }
+                if (oi >= N) {
+                    count++;
+                }
             }
         }
 
