@@ -12,34 +12,36 @@ public class Main {
         int N = Integer.parseInt(st.nextToken());
         int M = Integer.parseInt(st.nextToken());
 
-        List<Integer>[] list = new ArrayList[N + 1];
         int[] inDegree = new int[N + 1];
+        List<Integer>[] graph = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
-            list[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(in.readLine());
             int start = Integer.parseInt(st.nextToken());
             int end = Integer.parseInt(st.nextToken());
-            list[start].add(end);
+            graph[start].add(end);
             inDegree[end]++;
         }
 
         Queue<Integer> queue = new ArrayDeque<>();
+        StringBuilder sb = new StringBuilder();
+
         for (int i = 1; i < N + 1; i++) {
             if (inDegree[i] == 0) {
                 queue.offer(i);
             }
         }
 
-        StringBuilder sb = new StringBuilder();
         while (!queue.isEmpty()) {
             int now = queue.poll();
             sb.append(now).append(' ');
 
-            for (int num : list[now]) {
+            for (int num : graph[now]) {
                 inDegree[num]--;
+
                 if (inDegree[num] == 0) {
                     queue.offer(num);
                 }
