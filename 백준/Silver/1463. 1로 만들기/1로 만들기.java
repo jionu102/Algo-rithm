@@ -1,32 +1,37 @@
 import java.util.Scanner;
 
+// ----- DP -----
 public class Main {
-    private static Integer[] dp;
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
 
         int N = in.nextInt();
+        in.nextLine();
 
-        dp = new Integer[N + 1];
-        dp[0] = dp[1] = 0;
+        Integer[] memo = new Integer[N + 1];
+        memo[0] = memo[1] = 0;
 
-        System.out.println(findMin(N));
+        int count = dp(N, memo);
+
+        System.out.println(count);
+
         in.close();
     }
 
-    private static int findMin(int N) {
-        if (dp[N] == null) {
+    private static int dp(int N, Integer[] memo) {
+        if (memo[N] == null) {
             if (N % 6 == 0) {
-                dp[N] = Math.min(findMin(N - 1), Math.min(findMin(N / 3), findMin(N / 2))) + 1;
+                memo[N] =  Math.min(dp(N - 1, memo), Math.min(dp(N / 3, memo), dp(N / 2, memo))) + 1;
             } else if (N % 3 == 0) {
-                dp[N] = Math.min(findMin(N / 3), findMin(N - 1)) + 1;
+                memo[N] = Math.min(dp(N / 3, memo), dp(N - 1, memo)) + 1;
             } else if (N % 2 == 0) {
-                dp[N] = Math.min(findMin(N / 2), findMin(N - 1)) + 1;
+                memo[N] = Math.min(dp(N / 2, memo), dp(N - 1, memo)) + 1;
             } else {
-                dp[N] = findMin(N - 1) + 1;
+                memo[N] = dp(N - 1, memo) + 1;
             }
         }
-        return dp[N];
+
+        return memo[N];
     }
 }
