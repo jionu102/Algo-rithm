@@ -20,18 +20,16 @@ public class Main {
     }
 
     private static int dp(int N, Integer[] memo) {
-        if (memo[N] == null) {
-            if (N % 6 == 0) {
-                memo[N] =  Math.min(dp(N - 1, memo), Math.min(dp(N / 3, memo), dp(N / 2, memo))) + 1;
-            } else if (N % 3 == 0) {
-                memo[N] = Math.min(dp(N / 3, memo), dp(N - 1, memo)) + 1;
-            } else if (N % 2 == 0) {
-                memo[N] = Math.min(dp(N / 2, memo), dp(N - 1, memo)) + 1;
-            } else {
-                memo[N] = dp(N - 1, memo) + 1;
+        for (int i = 2; i <= N; i++) {
+            memo[i] = memo[i - 1] + 1;
+            if (i % 3 == 0) {
+                memo[i] = Math.min(memo[i], memo[i / 3] + 1);
+            }
+
+            if (i % 2 == 0) {
+                memo[i] = Math.min(memo[i], memo[i / 2] + 1);
             }
         }
-
         return memo[N];
     }
 }
