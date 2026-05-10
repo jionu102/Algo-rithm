@@ -1,10 +1,10 @@
 # [level 2] 선인장 숨기기 - 468379 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/468379?language=java) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/468379) 
 
 ### 성능 요약
 
-메모리: 368 MB, 시간: 228.44 ms
+메모리: 228 MB, 시간: 215.76 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2026년 05월 09일 18:09:12
+2026년 05월 10일 16:27:48
 
 ### 문제 설명
 
