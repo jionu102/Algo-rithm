@@ -1,55 +1,40 @@
-import java.util.*;
-
 class Solution {
     
-    private static final Map<String, Integer> memo = new HashMap<>();
-    
     public int solution(int[][] cost, int[][] hint) {
-        int answer = 0;
+        int answer = Integer.MAX_VALUE;
         
-        for (int[] c : cost) {
-            answer += c[0];
+        int stages = cost.length;
+        int buyCount = stages - 1;
+        
+        for (int caseNum = 0; caseNum < (1 << buyCount); caseNum++) {
+            int total = 0;
+            
+            boolean[] notOrBuy = new boolean[buyCount];
+            for (int i = 0; i < buyCount; i++) {
+                notOrBuy[i] = (caseNum & (1 << i)) == 1 << i;
+            }
+            
+            int[] hintCount = new int[stages];
+            
+            for (int i = 0; i < stages; i++) {
+                int col = hintCount[i];
+                if (col > cost[i].length - 1) col = cost[i].length - 1;
+                total += cost[i][col];
+                
+                if (i < buyCount && notOrBuy[i]) {
+                    total += hint[i][0];
+                    
+                    for (int j = 1; j < hint[i].length; j++) {
+                        int hintStage = hint[i][j] - 1;
+                        hintCount[hintStage]++;
+                    }
+                }
+            }
+            
+            answer = answer > total ? total : answer;
         }
-        
-        answer -= best(cost, hint, new int[cost.length], 0);
         
         return answer;
     }
-    
-    private int best(int[][] cost, int[][] hint, int[] indexArr, int depth) {
-        if (depth == hint.length) {
-            return 0;
-        }
-        
-        String key = depth + Arrays.toString(indexArr);
-        if (memo.containsKey(key)) {
-            return memo.get(key);
-        }
-        
-        int not = 0;
-        not += best(cost, hint, indexArr, depth + 1);
-        
-        int buy = -hint[depth][0];
-        for (int i = 1; i < hint[depth].length; i++) { 
-            int row = hint[depth][i] - 1;
-            int col = indexArr[row];
-            
-            if (col + 1 < cost[row].length) {
-                buy += cost[row][col] - cost[row][col + 1];
-            }
-            indexArr[row]++;
-        }
-        
-        buy += best(cost, hint, indexArr, depth + 1);
-        
-        for (int i = 1; i < hint[depth].length; i++) {
-            indexArr[hint[depth][i] - 1]--;
-        }
-        
-        int result = buy > not ? buy : not;
-        
-        memo.put(key, result);
-        
-        return result;
-    }
+
 }
