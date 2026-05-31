@@ -1,40 +1,37 @@
 class Solution {
     
     public int solution(int[][] cost, int[][] hint) {
-        int answer = Integer.MAX_VALUE;
+        int[] hintCount = new int[cost.length];
         
-        int stages = cost.length;
-        int buyCount = stages - 1;
-        
-        for (int caseNum = 0; caseNum < (1 << buyCount); caseNum++) {
-            int total = 0;
-            
-            boolean[] notOrBuy = new boolean[buyCount];
-            for (int i = 0; i < buyCount; i++) {
-                notOrBuy[i] = (caseNum & (1 << i)) == 1 << i;
-            }
-            
-            int[] hintCount = new int[stages];
-            
-            for (int i = 0; i < stages; i++) {
-                int col = hintCount[i];
-                if (col > cost[i].length - 1) col = cost[i].length - 1;
-                total += cost[i][col];
-                
-                if (i < buyCount && notOrBuy[i]) {
-                    total += hint[i][0];
-                    
-                    for (int j = 1; j < hint[i].length; j++) {
-                        int hintStage = hint[i][j] - 1;
-                        hintCount[hintStage]++;
-                    }
-                }
-            }
-            
-            answer = answer > total ? total : answer;
-        }
+        int answer = dfs(cost, hint, hintCount, 0);
         
         return answer;
     }
-
+    
+    public int dfs(int[][] cost, int[][] hint, int[] hintCount, int depth) {      
+        int c = hintCount[depth] > cost[depth].length - 1 
+            ? cost[depth].length - 1
+            : hintCount[depth];
+        
+        int notBuy = cost[depth][c];
+        
+        if (depth == hint.length) {
+            return notBuy;
+        }
+        
+        notBuy += dfs(cost, hint, hintCount, depth + 1);
+        
+        
+        int buy = cost[depth][c] + hint[depth][0];
+        for (int i = 1; i < hint[depth].length; i++) {
+            hintCount[hint[depth][i] - 1]++;
+        }
+        buy += dfs(cost, hint, hintCount, depth + 1);
+        
+        for (int i = 1; i < hint[depth].length; i++) {
+            hintCount[hint[depth][i] - 1]--;
+        }
+        
+        return Math.min(buy, notBuy);
+    }
 }
