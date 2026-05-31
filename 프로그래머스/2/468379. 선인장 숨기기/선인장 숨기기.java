@@ -1,106 +1,95 @@
-class Solution {
+import java.util.*;
 
+class Solution {
     public int[] solution(int m, int n, int h, int w, int[][] drops) {
         int[][] grid = new int[m][n];
-        Cactus cactus = new Cactus(h, w);
-        int[] result = binarySearch(grid, drops, m, n, cactus);
+        for (int[] arr : grid) {
+            Arrays.fill(arr, Integer.MAX_VALUE);
+        }
+        markDropCount(grid, drops);
+        grid = colSlidingWindow(grid, n, w);
+        grid = rowSlidingWindow(grid, m, h);
         
-        return result;
-    }   
+        return bestCoordinate(grid);
+    }
     
-    private static int[] binarySearch(
-        int[][] grid, int[][] drops, int m, int n, Cactus cactus
-    ) {
-        int min = 0;
-        int max = drops.length;
-        int[] result = new int[] {-1, -1};
+    private int[][] colSlidingWindow(int[][] grid, int n, int w) {
+        int[][] result = new int[grid.length][n - w + 1];
         
-        while (min <= max) {
-            int mid = (min + max) / 2;
-            int[] coordinate = check(drops, mid, m, n, cactus);
+        for (int r = 0; r < grid.length; r++) {
+            ArrayDeque<Integer> queue = new ArrayDeque<>();
+            int[] tempArr = new int[n - w + 1];
+            
+            for (int c = 0; c < n; c++) {
+                if (!queue.isEmpty() && queue.peekFirst() < c - w + 1) {
+                    queue.pollFirst();
+                }
                 
-            if (coordinate != null) {
-                min = mid + 1;
-                result = coordinate;
-            } else {
-                max = mid - 1;
+                while (!queue.isEmpty() && grid[r][queue.peekLast()] > grid[r][c]) { 
+                    queue.pollLast();
+                }
+                
+                queue.offerLast(c);
+                
+                if (c >= w - 1) {
+                    tempArr[c - w + 1] = grid[r][queue.peekFirst()];
+                }
+            }
+            
+            result[r] = tempArr;
+        }
+        
+        return result;
+    }
+    
+    private int[][] rowSlidingWindow(int[][] grid, int m, int h) {
+        int[][] result = new int[m - h + 1][grid[0].length];
+        
+        for (int c = 0; c < grid[0].length; c++) {
+            ArrayDeque<Integer> queue = new ArrayDeque<>();
+            
+            for (int r = 0; r < m; r++) {
+                // 범위를 벗어난 index 제거
+                if (!queue.isEmpty() && queue.peekFirst() < r - h + 1) {
+                    queue.pollFirst();
+                }
+                
+                // 현재 값보다 큰 후보 제거
+                while (!queue.isEmpty() && grid[queue.peekLast()][c] > grid[r][c]) { 
+                    queue.pollLast();
+                }
+                
+                queue.offerLast(r);
+                
+                if (r >= h - 1) {
+                    result[r - h + 1][c] = grid[queue.peekFirst()][c];
+                }
             }
         }
         
         return result;
     }
     
-    private static int[] check(
-        int[][] drops, int mid, int m, int n, Cactus cactus
-    ) { 
-        PrefixSum psum = new PrefixSum(m + 1, n + 1);
-        psum.markDrop(drops, mid);
-        psum.calculate();
-        
-        return psum.psumInCactus(cactus);
-    }
-    
-    private static class Cactus {
-        int height;
-        int width;
-        
-        private Cactus(int height, int width) {
-            this.height = height;
-            this.width = width;
-        }
-        
-        private int getHeight() {
-            return height;
-        }
-        
-        private int getWidth() {
-            return width;
+    private void markDropCount(int[][] grid, int[][] drops) {
+        int count = 1;
+        for (int[] drop : drops) {
+            grid[drop[0]][drop[1]] = count++;
         }
     }
     
-    private static class PrefixSum {
-        int[][] psum;
+    private int[] bestCoordinate(int[][] grid) {
+        int max = Integer.MIN_VALUE;
+        int[] result = new int[2];
         
-        private PrefixSum(int r, int c) {
-            this.psum = new int[r][c];
-        }
-        
-        private void markDrop(int[][] drops, int mid) {
-            for (int i = 0; i < mid; i++) {
-                int r = drops[i][0];
-                int c = drops[i][1];
-                psum[r + 1][c + 1] = 1;
-            }
-        }
-        
-        private void calculate() {
-            for (int r = 1; r < psum.length; r++) {
-                for (int c = 1; c < psum[0].length; c++) {
-                    psum[r][c] += psum[r - 1][c] + psum[r][c - 1] - psum[r - 1][c - 1];
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[r].length; c++) {
+                if (max < grid[r][c]) {
+                    result[0] = r;
+                    result[1] = c;
+                    max = grid[r][c];
                 }
             }
         }
-        
-        private int[] psumInCactus(Cactus cactus) {
-            int h = cactus.getHeight();
-            int w = cactus.getWidth();
-            
-            for (int r = h; r < psum.length; r++) {
-                for (int c = w; c < psum[0].length; c++) {
-                    int num = psum[r - h][c] + psum[r][c - w] - psum[r - h][ c - w];
-                    
-                    if (psum[r][c] == num) {
-                        return new int[]{r - h, c - w};
-                    }
-                }
-            }
-            
-            return null;
-        }
-        
-        private int[][] getPsum() {
-            return psum;
-        }
+        return result;
     }
-
 }
