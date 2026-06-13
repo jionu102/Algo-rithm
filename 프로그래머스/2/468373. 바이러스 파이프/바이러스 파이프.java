@@ -2,38 +2,30 @@ import java.util.*;
 
 class Solution {
     
-    List<Integer>[] pipeA;
-    List<Integer>[] pipeB;
-    List<Integer>[] pipeC;
+    private static List<Integer>[] graphA;
+    private static List<Integer>[] graphB;
+    private static List<Integer>[] graphC;
     
     public int solution(int n, int infection, int[][] edges, int k) {
-        pipeA = new ArrayList[n + 1];
-        pipeB = new ArrayList[n + 1];
-        pipeC = new ArrayList[n + 1];
-        buildPipe(1, pipeA, edges);
-        buildPipe(2, pipeB, edges);
-        buildPipe(3, pipeC, edges);
+        initGraph(n, edges);
         
-        boolean[] infections = new boolean[n + 1];
-        infections[infection] = true;
-    
-        return dfs(infections, k, 0);
+        return dfs(new HashSet<>(Set.of(infection)), k, 0);
     }
     
-    private int dfs(boolean[] infections, int k, int depth) {
+    private int dfs(Set<Integer> infections, int k, int depth) {
         if (depth == k) {
-            return isTrueSize(infections);
+            return infections.size();
         }
-
-        int resultA = openPipe(infections, pipeA, k, depth);
-        int resultB = openPipe(infections, pipeB, k, depth);
-        int resultC = openPipe(infections, pipeC, k, depth);
+        
+        int resultA = simulation(graphA, infections, k, depth);
+        int resultB = simulation(graphB, infections, k, depth);
+        int resultC = simulation(graphC, infections, k, depth);
         
         return Math.max(resultA, Math.max(resultB, resultC));
     }
     
-    private int openPipe(boolean[] infections, List<Integer>[] pipe, int k, int depth) {
-        List<Integer> memo = bfs(infections, pipe);
+    private int simulation(List<Integer>[] graph, Set<Integer> infections, int k, int depth) {
+        List<Integer> memo = openPipe(graph, infections);
         
         int result = dfs(infections, k, depth + 1);
         
@@ -42,39 +34,30 @@ class Solution {
         return result;
     }
     
-    private int isTrueSize(boolean[] infections) {
-        int count = 0;
-        for (boolean infection : infections) {
-         if (infection) count++;
-        }
-        
-        return count;
-    }
-    
-    private void rollback(boolean[] infections, List<Integer> memo) {
+    private void rollback(Set<Integer> infections, List<Integer> memo) {
         for (int m : memo) {
-            infections[m] = false;
+            infections.remove(m);
         }
     }
     
-    private List<Integer> bfs(boolean[] infections, List<Integer>[] pipe) {
-        Queue<Integer> queue = new ArrayDeque<>();
-        for (int i = 1; i < pipe.length; i++) {
-            if (infections[i] && !pipe[i].isEmpty()) {
-                queue.offer(i);
+    private List<Integer> openPipe(List<Integer>[] graph, Set<Integer> infections) {
+        List<Integer> memo = new ArrayList<>();
+        
+        Queue<Integer> q = new ArrayDeque<>();
+        for (int i = 1; i < graph.length; i++) {
+            if (infections.contains(i) && !graph[i].isEmpty()) {
+                q.offer(i);
             }
         }
         
-        List<Integer> memo = new ArrayList<>();
+        while (!q.isEmpty()) {
+            int root = q.poll();
             
-        while(!queue.isEmpty()) {
-            int root = queue.poll();
-            for (int node : pipe[root]) {
-                // infections 가 visited 역할 수행
-                if (infections[root] && !infections[node]) {
-                    infections[node] = true;
-                    queue.offer(node);
+            for (int node : graph[root]) {
+                if (!infections.contains(node)) {
+                    q.offer(node);
                     memo.add(node);
+                    infections.add(node);
                 }
             }
         }
@@ -82,20 +65,25 @@ class Solution {
         return memo;
     }
     
-    private void buildPipe(int type, List<Integer>[] pipe, int[][] edges) {
-        initPipe(pipe);
-        
-        for(int[] edge : edges) {
-            if (edge[2] == type) {
-                pipe[edge[0]].add(edge[1]);
-                pipe[edge[1]].add(edge[0]);
-            }
-        }
+    private void initGraph(int n, int[][] edges) {
+        graphA = new ArrayList[n + 1];
+        graphB = new ArrayList[n + 1];
+        graphC = new ArrayList[n + 1];
+        initList(graphA, edges, 1);
+        initList(graphB, edges, 2);
+        initList(graphC, edges, 3);
     }
     
-    private void initPipe(List<Integer>[] pipe) {
-        for(int i = 0; i < pipe.length; i++) {
-            pipe[i] = new ArrayList<>();
+    private void initList(List<Integer>[] graph, int[][] edges, int type) {
+        for(int i = 0; i < graph.length; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        
+        for (int[] edge : edges) {
+            if (edge[2] == type) {
+                graph[edge[0]].add(edge[1]);
+                graph[edge[1]].add(edge[0]);
+            }
         }
     }
 }
